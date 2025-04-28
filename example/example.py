@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # 导入scivis包
-import scivis as sv
+import scivis_wrx as sv
 
 def example_basic_usage():
     """展示基本用法"""
