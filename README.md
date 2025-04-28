@@ -1,574 +1,202 @@
-# Scivis - 科研绘图环境一体化管理系统使用指南
+# Scivis_wrx - 科学可视化颜色管理工具
 
-## 1. 介绍
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Python](https://img.shields.io/badge/python-3.6%2B-green)
 
-Scivis是一个为科研绘图设计的Python包，提供了统一、系统化的绘图环境，帮助科研人员创建高质量、风格一致的可视化图表。该系统管理颜色、主题、图表元素和预设样式，简化了科研绘图的工作流程。
+Scivis_wrx 是为科学可视化设计的颜色管理工具套件，帮助研究人员和数据科学家创建专业、一致的色彩方案，提升数据可视化效果。该工具专注于颜色提取、管理和生成，支持各种专业的配色方案。
 
-### 主要特点
+## 主要特性
 
-- **统一的颜色管理**：预设调色板、色彩角色定义和渐变色管理
-- **一致的主题系统**：适用于不同场景的主题预设，如学术论文、演示文稿等
-- **标准化的图表元素**：统一的网格、标注、标签和图例样式
-- **预设组合**：常用的图表类型和布局预设
-- **实用工具**：工作流管理、图表导出、样式定制等辅助功能
+- **智能颜色提取**：从图像中提取主要颜色并保存到颜色库
+- **专业色板生成**：支持多种色彩理论生成配色方案（互补色、三元色、单色等）
+- **ID-based 颜色管理**：颜色ID反映色彩特性，便于相似颜色查找
+- **智能命名系统**：根据颜色特性自动生成描述性名称
+- **色彩可视化工具**：直观展示颜色库和色板效果
 
-## 2. 安装
-
-### 从源码安装
+## 安装
 
 ```bash
-git clone https://github.com/yourusername/scivis.git
-cd scivis
+# 克隆仓库
+git clone https://github.com/yourusername/scivis_wrx.git
+cd scivis_wrx
+
+# 安装依赖
 pip install -e .
 ```
 
-### 依赖项
-
-Scivis依赖以下Python包：
-
+依赖项:
 - matplotlib
 - numpy
-- pandas
-- scipy (可选，用于某些高级分析功能)
+- Pillow
+- scipy (可选)
 
-## 3. 快速入门
+## 快速入门
 
-### 基本用法示例
+### 从图像提取颜色
 
-```python
-import matplotlib.pyplot as plt
-import numpy as np
-import scivis as sv
+```bash
+# 从单个图像提取颜色
+python example/image_color_extraction.py path/to/image.jpg
 
-# 应用主题
-sv.themes.apply_theme('clean')
+# 从目录中提取颜色
+python example/image_color_extraction.py path/to/image_directory
 
-# 创建图表
-fig, ax = plt.subplots(figsize=(8, 5))
-
-# 使用颜色系统
-primary_color = sv.colors.get_color('primary')
-secondary_color = sv.colors.get_color('secondary')
-
-# 绘制数据
-x = np.linspace(0, 10, 100)
-y1 = np.sin(x)
-y2 = np.cos(x)
-
-ax.plot(x, y1, color=primary_color, label='sin(x)')
-ax.plot(x, y2, color=secondary_color, label='cos(x)')
-
-# 设置标签
-sv.elements.set_labels(ax, title="基本波形图", xlabel="X", ylabel="Y")
-
-# 设置网格
-sv.elements.set_grid(ax, style='default')
-
-# 设置图例
-sv.elements.set_legend(ax, style='default')
-
-# 保存图表
-sv.utils.save_figure(fig, "basic_example.png")
-
-# 显示图表
-plt.show()
+# 显示详细信息
+python example/image_color_extraction.py path/to/image.jpg -v
 ```
 
-### 使用预设组合
+### 生成色板
 
-```python
-import matplotlib.pyplot as plt
-import numpy as np
-import scivis as sv
+```bash
+# 生成互补色色板
+python example/color_palette_generator.py --type complementary --num 2 --show
 
-# 应用学术主题
-sv.themes.apply_theme('academic')
+# 生成蓝色系列的单色色板
+python example/color_palette_generator.py --family blue --type monochromatic --num 5 --show
 
-# 使用学术线图预设
-fig, ax = sv.presets.apply_preset('line_academic', 
-                               title="实验结果", 
-                               xlabel="时间 (s)", 
-                               ylabel="温度 (°C)")
-
-# 绘制数据
-x = np.linspace(0, 10, 50)
-y = np.sin(x) * np.exp(-0.1 * x)
-ax.plot(x, y, marker='o', markersize=4)
-
-# 添加注释
-sv.elements.add_annotation(ax, 2, np.sin(2) * np.exp(-0.1 * 2), 
-                         "峰值", style='callout')
-
-# 保存图表
-sv.utils.save_figure(fig, "academic_example.png", dpi=300)
-
-# 显示图表
-plt.show()
+# 生成三元色配色，并显示使用示例
+python example/color_palette_generator.py --type triadic --examples --show
 ```
 
-## 4. 模块详解
+### 显示所有颜色
 
-### 4.1 颜色管理 (colors)
+```bash
+# 显示颜色库中所有颜色
+python example/show_all_colors.py --sort hue
 
-颜色管理模块提供了统一的颜色定义和调色板管理。
-
-#### 主要功能
-
-- **基础颜色**：获取定义好的基础颜色
-- **调色板**：使用预设的调色板或创建自定义调色板
-- **渐变色**：获取渐变色列表或创建自定义渐变
-- **颜色角色**：获取具有特定语义角色的颜色（如主体、背景、强调等）
-
-#### 示例
-
-```python
-# 获取基础颜色
-primary = sv.colors.get_color('primary')
-accent = sv.colors.get_color('accent')
-
-# 获取调色板
-palette = sv.colors.get_palette('vibrant', n=5)
-
-# 获取渐变色
-gradient = sv.colors.get_gradient('blues', n=10)
-
-# 创建自定义调色板
-sv.colors.create_custom_palette('my_palette', 
-                              ['#ff0000', '#00ff00', '#0000ff'])
-
-# 更新颜色角色
-sv.colors.update_role('highlight', '#ff5500')
-
-# 显示调色板
-sv.colors.show_palette('default')
+# 按亮度排序
+python example/show_all_colors.py --sort brightness
 ```
 
-### 4.2 主题管理 (themes)
+## 详细功能
 
-主题管理模块提供了整体图表风格的预设和管理功能。
+### 颜色提取与管理
 
-#### 主要功能
+Scivis_wrx 的核心是基于ID的颜色管理系统，每个颜色都有一个唯一的ID，反映其RGB值和HSV特性。这使得系统能够:
 
-- **预设主题**：应用内置主题
-- **自定义主题**：创建和修改主题
-- **预览主题**：查看主题效果
+- 准确存储和检索颜色
+- 智能查找相似颜色
+- 根据色彩理论生成配色方案
 
-#### 示例
+提取的颜色自动保存在颜色库中，可以跨项目复用。
+
+### 色板类型
+
+支持多种专业的色板类型:
+
+- **complementary**: 互补色（色环上相对的颜色）
+- **brightness**: 从深到浅的颜色渐变
+- **similar**: 相似色（饱和度变化）
+- **triadic**: 三元色（色环上等距的三种颜色）
+- **tetradic**: 四方配色（两对互补色）
+- **analogous**: 相邻色（色环上相邻的颜色）
+- **monochromatic**: 单色配色（相同色相，不同饱和度和亮度）
+- **split-complementary**: 分割互补色（一个基础色和两个互补色两侧的颜色）
+
+每种色板类型都遵循专业的色彩理论，适用于不同的设计和数据可视化场景。
+
+### 色彩可视化
+
+工具提供了多种可视化方式:
+
+- 图像颜色提取可视化
+- 相似颜色对比
+- 互补色展示
+- 从深到浅的色板展示
+- 全库颜色网格展示
+- 配色方案的实际应用示例
+
+## 编程接口
+
+### 颜色管理
 
 ```python
-# 应用预设主题
-sv.themes.apply_theme('academic')
+from scivis_wrx import generate_color_id, load_colors, save_colors, rgb_to_hsv
 
-# 创建自定义主题
-sv.themes.create_custom_theme('my_theme', 'clean', {
-    'font.family': 'serif',
-    'font.size': 12,
-    'axes.grid': True,
-    'grid.alpha': 0.3,
-})
+# 生成颜色ID
+color = (0.2, 0.5, 0.8)  # RGB格式 (0-1)
+color_id = generate_color_id(color)  # 返回唯一的颜色ID
 
-# 修改主题参数
-sv.themes.modify_theme('my_theme', {
-    'axes.spines.top': False,
-    'axes.spines.right': False,
-})
+# 加载颜色库
+colors = load_colors("outputs/image_colors.json", include_meta=True, use_id_as_key=True)
 
-# 预览主题
-sv.themes.preview_theme('my_theme')
+# 保存颜色到库
+save_colors(colors, "outputs/image_colors.json")
+
+# RGB转HSV
+h, s, v = rgb_to_hsv(color)
 ```
 
-### 4.3 图表元素 (elements)
-
-图表元素模块提供了标准化的图表元素样式和设置。
-
-#### 主要功能
-
-- **标注**：添加带有预设样式的标注
-- **文本框**：添加样式化的文本框
-- **网格**：应用预设网格样式
-- **标签**：设置标题和轴标签样式
-- **图例**：应用预设图例样式
-- **轴线**：自定义轴线可见性和样式
-
-#### 示例
+### 颜色提取
 
 ```python
-# 添加标注
-sv.elements.add_annotation(ax, 5, 10, "最大值", style='callout')
+from scivis_wrx import extract_dominant_colors, add_colors_from_image
 
-# 添加文本框
-sv.elements.add_textbox(ax, 0.1, 0.9, "重要信息", style='highlight',
-                       transform=ax.transAxes)
+# 从图像提取主要颜色
+dominant_colors = extract_dominant_colors(
+    "path/to/image.jpg", 
+    n_colors=5, 
+    exclude_white=True
+)
 
-# 设置网格
-sv.elements.set_grid(ax, style='dashed')
-
-# 设置标签
-sv.elements.set_labels(ax, title="实验结果", 
-                     xlabel="时间 (s)", 
-                     ylabel="温度 (°C)")
-
-# 设置图例
-sv.elements.set_legend(ax, style='outside')
-
-# 设置轴线样式
-sv.elements.style_axis(ax, spine_top=False, spine_right=False)
-```
-
-### 4.4 预设组合 (presets)
-
-预设组合模块提供了常用图表类型和布局的预设组合。
-
-#### 主要功能
-
-- **基本图表预设**：线图、柱状图、散点图等预设
-- **复合布局**：创建多子图布局
-- **特殊图表**：双Y轴图、带趋势线的散点图等
-
-#### 示例
-
-```python
-# 使用线图预设
-fig, ax = sv.presets.apply_preset('line_basic', 
-                                title="基本线图", 
-                                xlabel="X", 
-                                ylabel="Y")
-
-# 使用柱状图预设
-fig, ax, bar_width = sv.presets.apply_preset('bar_comparison', 
-                                          title="对比柱状图")
-
-# 使用散点图预设
-fig, ax, scatter_params = sv.presets.apply_preset('scatter_basic',
-                                               title="散点图")
-
-# 创建复合图表布局
-fig, axes = sv.presets.create_composite_figure(
-    layout_type='grid',
-    num_plots=4,
-    figsize=(12, 10),
-    title="复合图表布局"
+# 将颜色添加到颜色库
+color_names = add_colors_from_image(
+    "path/to/image.jpg",
+    "outputs/image_colors.json",
+    n_colors=5
 )
 ```
 
-### 4.5 工具函数 (utils)
-
-工具函数模块提供了各种辅助功能，用于图表导出、数据处理和工作流管理。
-
-#### 主要功能
-
-- **图表保存**：保存图表为多种格式
-- **图表注释**：自动添加数据标签、时间戳等
-- **数据处理**：数据归一化、异常值检测等
-- **工作流管理**：图表创建、更新和导出的工作流
-
-#### 示例
+### 查找相关颜色
 
 ```python
-# 保存图表
-sv.utils.save_figure(fig, "output.png", dpi=300, formats=['png', 'pdf', 'svg'])
+from scivis_wrx import find_similar_colors, find_complementary_colors, find_similar_colors_by_brightness
 
-# 为柱状图添加数据标签
-sv.utils.auto_label_bars(ax, bars, fmt='{:.1f}')
+# 查找相似颜色
+similar_colors = find_similar_colors(color, "outputs/image_colors.json", max_results=5)
 
-# 添加时间戳
-sv.utils.add_timestamp(fig, position='bottom_right')
+# 查找互补色
+complementary_colors = find_complementary_colors(color, "outputs/image_colors.json", max_results=2)
 
-# 添加拟合线
-line, poly = sv.utils.add_fit_line(ax, x, y, order=2, 
-                                 color='red', confidence_interval=True)
-
-# 使用图表管理器
-manager = sv.figure_manager
-fig, ax = manager.create_figure("experiment_1")
-# ... 绘制图表 ...
-manager.export_figure("experiment_1", "output/exp1.png")
+# 查找按亮度排序的相似色
+similar_by_brightness = find_similar_colors_by_brightness(color, "outputs/image_colors.json", max_results=5)
 ```
 
-### 4.6 图表管理器 (figure_manager)
+## 配置选项
 
-图表管理器提供了创建、存储、更新和导出多个图表的工作流管理。
+所有示例程序都支持多种命令行选项，使用 `-h` 或 `--help` 参数查看帮助信息:
 
-#### 主要功能
-
-- **图表创建和存储**：创建并管理多个图表
-- **图表更新**：更新已存储的图表
-- **批量导出**：导出所有或选定的图表
-- **会话管理**：保存和恢复绘图会话
-
-#### 示例
-
-```python
-# 创建图表
-fig1, ax1 = sv.figure_manager.create_figure("temp_plot")
-ax1.plot(time, temperature)
-sv.elements.set_labels(ax1, title="温度变化", xlabel="时间", ylabel="温度")
-
-# 创建另一个图表
-fig2, ax2 = sv.figure_manager.create_figure("pressure_plot")
-ax2.plot(time, pressure)
-sv.elements.set_labels(ax2, title="压力变化", xlabel="时间", ylabel="压力")
-
-# 更新图表
-def add_grid(fig, ax):
-    sv.elements.set_grid(ax, style='dashed')
-    return True
-
-sv.figure_manager.update_figure("temp_plot", add_grid)
-
-# 导出所有图表
-sv.figure_manager.export_all(formats=['png', 'pdf'], dpi=300)
-
-# 保存会话
-sv.figure_manager.save_session("my_session.pkl")
+```bash
+python example/color_palette_generator.py --help
+python example/image_color_extraction.py --help
+python example/show_all_colors.py --help
 ```
 
-## 5. 进阶用法
+## 应用场景
 
-### 5.1 创建完整的科研图表
+- **科学研究**: 为学术论文和报告创建专业、一致的配色方案
+- **数据可视化**: 为图表和可视化选择最佳配色
+- **UI/UX设计**: 从图片中提取颜色创建协调的用户界面
+- **品牌设计**: 基于品牌图像创建配色系统
+- **可访问性设计**: 创建考虑色盲人士的高对比度配色方案
 
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-import scivis as sv
+## 最佳实践
 
-# 应用学术主题
-sv.themes.apply_theme('academic')
+- 对于科学论文，推荐使用互补色或三元色配色方案
+- 对于数据可视化，推荐使用单色或相邻色方案表示连续数据
+- 对于分类数据，推荐使用三元色或四方配色方案
+- 始终考虑色彩可访问性，避免仅依赖颜色传达信息
 
-# 准备数据
-np.random.seed(42)
-x = np.linspace(0, 10, 50)
-y1 = 0.5 * x + 0.5 * np.random.randn(50)
-y2 = 0.3 * x**2 - 0.5 * x + 0.2 * np.random.randn(50)
+## 贡献
 
-# 创建复合图表布局
-fig, axes = sv.presets.create_composite_figure(
-    layout_type='irregular', 
-    num_plots=3, 
-    figsize=(10, 8),
-    title="实验数据分析",
-    subtitle="比较不同模型的拟合效果",
-    add_labels=True
-)
+欢迎贡献和改进建议！请通过 GitHub issues 或 pull requests 提交。
 
-# 主散点图 (左上)
-fig_scatter, ax_scatter, scatter_params, trend_params = sv.presets.apply_preset(
-    'scatter_with_trend', fig=fig, ax=axes[0],
-    title="数据点与线性拟合", xlabel="X变量", ylabel="Y变量"
-)
+## 许可
 
-# 绘制散点和拟合线
-ax_scatter.scatter(x, y1, **scatter_params, label="实验数据")
+本项目采用 MIT 许可证。
 
-# 添加拟合线
-fit_line, poly = sv.utils.add_fit_line(
-    ax_scatter, x, y1, 
-    order=1,
-    color='red',
-    linestyle='--'
-)
+## 联系方式
 
-# 残差图 (右上)
-residuals = y1 - poly(x)
-axes[1].scatter(x, residuals, color=sv.colors.get_color('accent'), alpha=0.7)
-axes[1].axhline(y=0, linestyle='--', color='gray')
-axes[1].set_title("残差分析")
-axes[1].set_xlabel("X变量")
-axes[1].set_ylabel("残差")
-sv.elements.set_grid(axes[1], style='dashed')
-
-# 比较图 (下部)
-from scipy import stats
-slope, intercept, r_value, p_value, std_err = stats.linregress(x, y1)
-
-ax_left = axes[2]
-ax_right = ax_left.twinx()
-
-# 线性模型
-ax_left.scatter(x, y1, color=sv.colors.get_color('primary'), s=30, alpha=0.5)
-linear_pred = slope * x + intercept
-ax_left.plot(x, linear_pred, color=sv.colors.get_color('primary'), linestyle='-')
-ax_left.set_ylabel("线性模型", color=sv.colors.get_color('primary'))
-ax_left.tick_params(axis='y', colors=sv.colors.get_color('primary'))
-
-# 二次模型
-ax_right.scatter(x, y2, color=sv.colors.get_color('secondary'), s=30, alpha=0.5)
-coeffs2 = np.polyfit(x, y2, 2)
-poly2 = np.poly1d(coeffs2)
-x_fit = np.linspace(min(x), max(x), 100)
-ax_right.plot(x_fit, poly2(x_fit), color=sv.colors.get_color('secondary'), linestyle='-')
-ax_right.set_ylabel("二次模型", color=sv.colors.get_color('secondary'))
-ax_right.tick_params(axis='y', colors=sv.colors.get_color('secondary'))
-
-axes[2].set_title("模型比较")
-axes[2].set_xlabel("X变量")
-
-# 保存图表
-sv.utils.save_figure(fig, "scientific_figure.png", dpi=300)
-```
-
-### 5.2 扩展系统
-
-#### 添加自定义组件
-
-```python
-# 添加自定义颜色角色
-sv.colors.update_role('critical', '#ff0000')
-
-# 添加自定义注释样式
-sv.elements.add_custom_annotation_style('big_arrow', {
-    'xytext': (50, 50),
-    'textcoords': 'offset points',
-    'fontsize': 12,
-    'color': 'black',
-    'ha': 'center',
-    'va': 'center',
-    'bbox': dict(boxstyle='round,pad=0.5', fc='yellow', ec='black', alpha=0.8),
-    'arrowprops': dict(arrowstyle='fancy', connectionstyle='arc3,rad=0.3', 
-                     color='black', lw=2),
-})
-
-# 添加自定义网格样式
-sv.elements.add_custom_grid_style('engineering', {
-    'visible': True,
-    'color': '#cccccc',
-    'linestyle': '-',
-    'linewidth': 0.5,
-    'alpha': 0.8,
-})
-```
-
-#### 创建自定义预设
-
-```python
-def setup_engineering_plot(fig=None, ax=None, title=None, 
-                         xlabel=None, ylabel=None, grid_style='engineering'):
-    """工程图表预设"""
-    # 创建图表（如果未提供）
-    if fig is None and ax is None:
-        fig, ax = plt.subplots(figsize=(8, 6))
-    
-    # 应用网格样式
-    sv.elements.set_grid(ax, style=grid_style, which='both')
-    
-    # 设置标签
-    sv.elements.set_labels(ax, title=title, xlabel=xlabel, ylabel=ylabel, style='bold')
-    
-    # 设置轴线样式
-    sv.elements.style_axis(ax, spine_top=True, spine_right=True)
-    
-    # 设置次刻度
-    ax.minorticks_on()
-    
-    return fig, ax
-
-# 添加自定义预设
-sv.presets.add_preset('engineering_plot', setup_engineering_plot)
-```
-
-### 5.3 导出和共享样式
-
-```python
-# 导出颜色配置
-sv.style_exporter.export_colors(sv.colors, "my_colors.json")
-
-# 导出主题配置
-theme = sv.themes.get_theme('my_theme')
-sv.style_exporter.export_theme(theme, "my_theme.json")
-
-# 导出为matplotlib样式文件
-sv.style_exporter.export_matplotlib_style(theme, "my_style.mplstyle")
-
-# 导出预设工作流为Python脚本
-preset_func = sv.presets.get_preset('line_academic').setup_func
-sv.style_exporter.export_preset_workflow(preset_func, "academic_line_workflow.py")
-```
-
-## 6. 最佳实践
-
-### 6.1 科研论文图表
-
-- 使用`academic`主题
-- 保持字体一致（通常为serif）
-- 使用科学调色板
-- 避免过度装饰
-- 使用矢量格式（PDF、SVG）保存
-- 使用300 DPI或更高分辨率
-- 确保图表大小适合期刊栏宽
-
-### 6.2 演示文稿图表
-
-- 使用`presentation`主题
-- 增大字体大小和线宽
-- 使用明亮的颜色和对比
-- 简化图表，关注主要信息
-- 添加清晰的标题和说明
-
-### 6.3 数据探索
-
-- 使用`clean`主题
-- 添加网格以便于阅读
-- 使用带有拟合线的散点图
-- 添加趋势线和统计信息
-- 多角度展示数据（多个子图）
-
-## 7. 常见问题解答
-
-**Q: 如何在多个子图中保持一致的样式？**
-
-A: 应用主题后，使用`sv.presets.create_composite_figure()`创建子图，每个子图将自动继承全局主题样式。
-
-**Q: 如何为特定期刊定制图表样式？**
-
-A: 创建一个基于`academic`主题的自定义主题，调整参数以匹配期刊要求：
-
-```python
-sv.themes.create_custom_theme('journal_specific', 'academic', {
-    'font.family': 'Times New Roman',
-    'figure.figsize': (3.5, 2.5),  # 调整为期刊列宽
-    'font.size': 8,  # 调整字体大小
-})
-```
-
-**Q: 如何在多个图表之间保持一致的颜色映射？**
-
-A: 使用相同的调色板，并为特定数据系列分配固定的颜色角色：
-
-```python
-# 定义数据系列与颜色的映射
-data_colors = {
-    'temperature': sv.colors.get_color('primary'),
-    'pressure': sv.colors.get_color('secondary'),
-    'humidity': sv.colors.get_color('tertiary'),
-}
-
-# 在所有图表中使用一致的颜色
-ax1.plot(time, temp, color=data_colors['temperature'])
-ax2.plot(time, pressure, color=data_colors['pressure'])
-```
-
-**Q: 如何为图表添加水印或标志？**
-
-A: 使用`sv.elements.create_watermark()`函数：
-
-```python
-sv.elements.create_watermark(fig, "草稿", alpha=0.1, fontsize=36, rotation=30)
-```
-
-## 8. 扩展阅读
-
-- [Matplotlib 文档](https://matplotlib.org/stable/contents.html)
-- [Ten Simple Rules for Better Figures](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833)
-- [Fundamentals of Data Visualization](https://clauswilke.com/dataviz/)
-- [Scientific Visualization: Python + Matplotlib](https://github.com/rougier/scientific-visualization-book)
-
-## 9. 版本历史
-
-- **0.1.0**: 初始版本，包含核心功能
-
-## 10. 联系方式
-
-如有问题或建议，请联系：
-
-- GitHub: [https://github.com/yourusername/scivis](https://github.com/yourusername/scivis)
+有问题或建议请联系:
 - Email: your.email@example.com
+- GitHub: https://github.com/yourusername/scivis_wrx
