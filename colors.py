@@ -5,6 +5,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Union, Optional
+from .color_config import extract_colors_from_image, get_image_palette, list_image_palettes
 
 # 基础颜色字典
 class ColorManager:
@@ -181,6 +182,50 @@ class ColorManager:
         ax.set_yticks([])
         ax.set_title(f"渐变色: {name}")
         plt.show()
+
+    def create_palette_from_image(self, name: str, image_path: str, color_count: int = 5, exclude_white: bool = True) -> List[str]:
+        """
+        从图片中提取颜色创建调色板
+        
+        参数:
+            name: 调色板名称
+            image_path: 图片文件路径
+            color_count: 要提取的颜色数量，默认为5
+            exclude_white: 是否排除白色（和接近白色的颜色），默认为True
+            
+        返回:
+            提取的颜色列表
+        """
+        # 从图片中提取颜色
+        colors = extract_colors_from_image(image_path, color_count, exclude_white=exclude_white)
+        
+        # 保存为自定义调色板
+        self.create_custom_palette(name, colors)
+        
+        return colors
+    
+    def get_image_palettes(self) -> List[str]:
+        """
+        获取所有从图片中提取的调色板名称
+        
+        返回:
+            调色板名称列表
+        """
+        return list_image_palettes()
+    
+    def use_image_palette(self, name: str) -> None:
+        """
+        使用从图片中提取的调色板
+        
+        参数:
+            name: 图片调色板名称
+        """
+        palette = get_image_palette(name)
+        if palette is None:
+            raise ValueError(f"图片调色板 '{name}' 未找到")
+        
+        # 将图片调色板添加到当前调色板中
+        self.create_custom_palette(name, palette)
 
 # 创建全局颜色管理器实例
 colors = ColorManager()

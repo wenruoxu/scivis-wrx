@@ -6,6 +6,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 from typing import Dict, List, Tuple, Union, Optional, Any, Callable
 from .colors import colors
+from .color_config import get_grid_color, get_common_color, get_special_color
 from matplotlib.legend import Legend
 from matplotlib.colorbar import Colorbar
 
@@ -22,8 +23,8 @@ class ElementManager:
                 'color': colors.get_color('foreground'),
                 'ha': 'center',
                 'va': 'bottom',
-                'bbox': dict(boxstyle='round,pad=0.3', fc='white', ec='gray', alpha=0.7),
-                'arrowprops': dict(arrowstyle='->', connectionstyle='arc3,rad=0', color='gray'),
+                'bbox': dict(boxstyle='round,pad=0.3', fc=get_common_color('white'), ec=get_common_color('gray'), alpha=0.7),
+                'arrowprops': dict(arrowstyle='->', connectionstyle='arc3,rad=0', color=get_common_color('gray')),
             },
             'simple': {
                 'xytext': (0, 10),
@@ -40,7 +41,7 @@ class ElementManager:
                 'color': colors.get_color('foreground'),
                 'ha': 'center',
                 'va': 'bottom',
-                'arrowprops': dict(arrowstyle='-', color='gray'),
+                'arrowprops': dict(arrowstyle='-', color=get_common_color('gray')),
             },
             'callout': {
                 'xytext': (30, 20),
@@ -49,8 +50,8 @@ class ElementManager:
                 'color': colors.get_color('foreground'),
                 'ha': 'left',
                 'va': 'center',
-                'bbox': dict(boxstyle='round,pad=0.5', fc='white', ec='gray', alpha=0.7),
-                'arrowprops': dict(arrowstyle='fancy', connectionstyle='arc3,rad=0.3', color='gray'),
+                'bbox': dict(boxstyle='round,pad=0.5', fc=get_common_color('white'), ec=get_common_color('gray'), alpha=0.7),
+                'arrowprops': dict(arrowstyle='fancy', connectionstyle='arc3,rad=0.3', color=get_common_color('gray')),
             }
         }
         
@@ -59,16 +60,16 @@ class ElementManager:
             'default': {
                 'fontsize': 10,
                 'color': colors.get_color('foreground'),
-                'bbox': dict(boxstyle='round,pad=0.5', fc='white', ec='gray', alpha=0.7),
+                'bbox': dict(boxstyle='round,pad=0.5', fc=get_common_color('white'), ec=get_common_color('gray'), alpha=0.7),
             },
             'clean': {
                 'fontsize': 10,
                 'color': colors.get_color('foreground'),
-                'bbox': dict(boxstyle='round,pad=0.3', fc='white', ec='white', alpha=0.5),
+                'bbox': dict(boxstyle='round,pad=0.3', fc=get_common_color('white'), ec=get_common_color('white'), alpha=0.5),
             },
             'highlight': {
                 'fontsize': 11,
-                'color': 'white',
+                'color': get_common_color('white'),
                 'weight': 'bold',
                 'bbox': dict(boxstyle='round,pad=0.5', fc=colors.get_color('accent'), ec='none', alpha=0.9),
             },
@@ -76,7 +77,7 @@ class ElementManager:
                 'fontsize': 9,
                 'color': colors.get_color('foreground'),
                 'style': 'italic',
-                'bbox': dict(boxstyle='round,pad=0.3', fc='#e5f5fd', ec='#a8d7fd', alpha=0.9),
+                'bbox': dict(boxstyle='round,pad=0.3', fc=get_special_color('info_background'), ec=get_special_color('info_border'), alpha=0.9),
             }
         }
         
@@ -84,21 +85,21 @@ class ElementManager:
         self.grid_styles = {
             'default': {
                 'visible': True,
-                'color': '#dddddd',
+                'color': get_grid_color('default'),
                 'linestyle': '-',
                 'linewidth': 0.5,
                 'alpha': 0.5,
             },
             'dashed': {
                 'visible': True,
-                'color': '#cccccc',
+                'color': get_grid_color('dashed'),
                 'linestyle': '--',
                 'linewidth': 0.5,
                 'alpha': 0.7,
             },
             'dotted': {
                 'visible': True,
-                'color': '#888888',
+                'color': get_grid_color('dotted'),
                 'linestyle': ':',
                 'linewidth': 0.5,
                 'alpha': 0.5,
@@ -108,7 +109,7 @@ class ElementManager:
             },
             'subtle': {
                 'visible': True,
-                'color': '#eeeeee',
+                'color': get_grid_color('subtle'),
                 'linestyle': '-',
                 'linewidth': 0.5,
                 'alpha': 0.3,
@@ -145,7 +146,7 @@ class ElementManager:
                 'loc': 'best',
                 'frameon': True,
                 'framealpha': 0.8,
-                'facecolor': 'white',
+                'facecolor': get_common_color('white'),
                 'edgecolor': colors.get_color('foreground_alt'),
             },
             'outside': {
@@ -153,7 +154,7 @@ class ElementManager:
                 'bbox_to_anchor': (1.05, 0.5),
                 'frameon': True,
                 'framealpha': 0.8,
-                'facecolor': 'white',
+                'facecolor': get_common_color('white'),
                 'edgecolor': colors.get_color('foreground_alt'),
             },
             'minimal': {
@@ -164,8 +165,8 @@ class ElementManager:
                 'loc': 'best',
                 'frameon': True,
                 'framealpha': 1.0,
-                'facecolor': 'white',
-                'edgecolor': 'black',
+                'facecolor': get_common_color('white'),
+                'edgecolor': get_common_color('black'),
                 'shadow': True,
             }
         }
@@ -365,10 +366,13 @@ class ElementManager:
                 spine.set_linewidth(width)
     
     def create_watermark(self, fig: plt.Figure, text: str, alpha: float = 0.1, 
-                         fontsize: int = 20, color: str = 'gray', 
+                         fontsize: int = 20, color: str = None, 
                          rotation: float = 30) -> plt.Text:
         """添加水印"""
         # 获取图表中心位置
+        if color is None:
+            color = get_common_color('gray')
+            
         watermark = fig.text(0.5, 0.5, text, 
                             fontsize=fontsize, 
                             color=color, 
